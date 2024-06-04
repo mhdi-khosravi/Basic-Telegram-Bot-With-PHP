@@ -1206,7 +1206,56 @@ class Telegram
     {
         return $this->endpoint('kickChatMember', $content);
     }
+    /**
+     * Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object.
+     * <table class="table">
+     * <thead>
+     * <tr>
+     * <th>Parameter</th>
+     * <th>Type</th>
+     * <th>Required</th>
+     * <th>Description</th>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>chat_id</td>
+     * <td>Integer or String</td>
+     * <td>Yes</td>
+     * <td>Unique identifier for the target chat or username of the target channel (in the format <code>@channelusername</code>)</td>
+     * </tr>
+     * <tr>
+     * <td>name</td>
+     * <td>String</td>
+     * <td>Optional</td>
+     * <td>Invite link name; 0-32 characters</td>
+     * </tr>
+     * <tr>
+     * <td>expire_date</td>
+     * <td>Integer</td>
+     * <td>Optional</td>
+     * <td>Point in time (Unix timestamp) when the link will expire</td>
+     * </tr>
+     * <tr>
+     * <td>member_limit</td>
+     * <td>Integer</td>
+     * <td>Optional</td>
+     * <td>The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999</td>
+     * </tr>
+     * <tr>
+     * <td>creates_join_request</td>
+     * <td>Boolean</td>
+     * <td>Optional</td>
+     * <td><em>True</em>, if users joining the chat via the link need to be approved by chat administrators. If <em>True</em>, <em>member_limit</em> can't be specified</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     */
 
+    public function createChatInviteLink(array $content)
+    {
+        return $this->endpoint('createChatInviteLink', $content);
+    }
     /// Leave Chat
 
     /**
@@ -1766,25 +1815,25 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['data'];
+            return @$this->data['callback_query']['data']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['text'];
+            return @$this->data['channel_post']['text']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['text'];
+            return @$this->data['edited_message']['text']  ?? '';
         }
 
-        return @$this->data['message']['text'];
+        return @$this->data['message']['text'] ?? '';
     }
 
     public function Caption()
     {
         $type = $this->getUpdateType();
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['caption'];
+            return @$this->data['channel_post']['caption']  ?? '';
         }
-        return @$this->data['message']['caption'];
+        return @$this->data['message']['caption']  ?? '';
     }
 
     /// Get the chat_id of the current message
@@ -1796,19 +1845,19 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['message']['chat']['id'];
+            return @$this->data['callback_query']['message']['chat']['id']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['chat']['id'];
+            return @$this->data['channel_post']['chat']['id']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['chat']['id'];
+            return @$this->data['edited_message']['chat']['id']  ?? '';
         }
         if ($type == self::INLINE_QUERY) {
-            return @$this->data['inline_query']['from']['id'];
+            return @$this->data['inline_query']['from']['id']  ?? '';
         }
 
-        return $this->data['message']['chat']['id'];
+        return $this->data['message']['chat']['id'] ?? '';
     }
 
     /// Get the message_id of the current message
@@ -1820,16 +1869,16 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['message']['message_id'];
+            return @$this->data['callback_query']['message']['message_id']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['message_id'];
+            return @$this->data['channel_post']['message_id']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['message_id'];
+            return @$this->data['edited_message']['message_id']  ?? '';
         }
 
-        return $this->data['message']['message_id'];
+        return $this->data['message']['message_id'] ?? '';
     }
 
     /// Get the reply_to_message message_id of the current message
@@ -1839,7 +1888,7 @@ class Telegram
      */
     public function ReplyToMessageID()
     {
-        return $this->data['message']['reply_to_message']['message_id'];
+        return $this->data['message']['reply_to_message']['message_id'] ?? '';
     }
 
     /// Get the reply_to_message forward_from user_id of the current message
@@ -1849,11 +1898,11 @@ class Telegram
      */
     public function ReplyToMessageFromUserID()
     {
-        return $this->data['message']['reply_to_message']['forward_from']['id'];
+        return $this->data['message']['reply_to_message']['forward_from']['id'] ?? '';
     }
     public function ReplyToMessageFromUserIDMessage()
     {
-        return $this->data['message']['reply_to_message']['text'];
+        return $this->data['message']['reply_to_message']['text'] ?? '';
     }
     /// Get the inline_query of the current update
 
@@ -1862,7 +1911,7 @@ class Telegram
      */
     public function Inline_Query()
     {
-        return $this->data['inline_query'];
+        return $this->data['inline_query']  ?? '';
     }
 
     /// Get the callback_query of the current update
@@ -1872,7 +1921,7 @@ class Telegram
      */
     public function Callback_Query()
     {
-        return $this->data['callback_query'];
+        return $this->data['callback_query']  ?? '';
     }
 
     /// Get the callback_query id of the current update
@@ -1882,7 +1931,7 @@ class Telegram
      */
     public function Callback_ID()
     {
-        return $this->data['callback_query']['id'];
+        return $this->data['callback_query']['id'] ?? '';
     }
 
     /// Get the Get the data of the current callback
@@ -1893,7 +1942,7 @@ class Telegram
      */
     public function Callback_Data()
     {
-        return $this->data['callback_query']['data'];
+        return $this->data['callback_query']['data'] ?? '';
     }
 
     /// Get the Get the message of the current callback
@@ -1903,17 +1952,17 @@ class Telegram
      */
     public function Callback_Message()
     {
-        return $this->data['callback_query']['message'];
+        return $this->data['callback_query']['message']  ?? '';
     }
 
     public function mime_type()
     {
-        return $this->data['message']['document']['mime_type'];
+        return $this->data['message']['document']['mime_type']  ?? '';
     }
 
     public function documentsize()
     {
-        return $this->data['message']['document']['file_size'];
+        return $this->data['message']['document']['file_size']  ?? '';
     }
     /// Get the Get the chat_id of the current callback
 
@@ -1923,9 +1972,24 @@ class Telegram
      */
     public function Callback_ChatID()
     {
-        return $this->data['callback_query']['message']['chat']['id'];
+        return $this->data['callback_query']['message']['chat']['id'] ?? '';
     }
-
+    public function Callback_forward_chatID()
+    {
+        return $this->data['callback_query']['message']['reply_to_message']['forward_origin']['sender_user']['id'] ?? '';
+    }
+    public function Callback_forward_username()
+    {
+        return $this->data['callback_query']['message']['reply_to_message']['forward_origin']['sender_user']['username'] ?? '';
+    }
+    public function Callback_forward_user_type()
+    {
+        return $this->data['callback_query']['message']['reply_to_message']['forward_origin']['type'] ?? '';
+    }
+    public function Callback_forward_fullName()
+    {
+        return $this->data['callback_query']['message']['reply_to_message']['forward_origin']['sender_user_name'] ?? '';
+    }
     /// Get the Get the from_id of the current callback
 
     /**
@@ -1933,7 +1997,7 @@ class Telegram
      */
     public function Callback_FromID()
     {
-        return $this->data['callback_query']['from']['id'];
+        return $this->data['callback_query']['from']['id'] ?? '';
     }
 
 
@@ -1944,7 +2008,7 @@ class Telegram
      */
     public function Date()
     {
-        return $this->data['message']['date'];
+        return $this->data['message']['date'] ?? '';
     }
 
     /// Get the first name of the user
@@ -1952,16 +2016,16 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['from']['first_name'];
+            return @$this->data['callback_query']['from']['first_name']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['from']['first_name'];
+            return @$this->data['channel_post']['from']['first_name']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['from']['first_name'];
+            return @$this->data['edited_message']['from']['first_name']  ?? '';
         }
 
-        return @$this->data['message']['from']['first_name'];
+        return @$this->data['message']['from']['first_name'] ?? '';
     }
 
     /// Get the last name of the user
@@ -1969,16 +2033,16 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['from']['last_name'];
+            return @$this->data['callback_query']['from']['last_name']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['from']['last_name'];
+            return @$this->data['channel_post']['from']['last_name']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['from']['last_name'];
+            return @$this->data['edited_message']['from']['last_name']  ?? '';
         }
         if ($type == self::MESSAGE) {
-            return @$this->data['message']['from']['last_name'];
+            return @$this->data['message']['from']['last_name']  ?? '';
         }
 
         return '';
@@ -1989,28 +2053,28 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return @$this->data['callback_query']['from']['username'];
+            return @$this->data['callback_query']['from']['username']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return @$this->data['channel_post']['from']['username'];
+            return @$this->data['channel_post']['from']['username']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['from']['username'];
+            return @$this->data['edited_message']['from']['username']  ?? '';
         }
 
-        return @$this->data['message']['from']['username'];
+        return @$this->data['message']['from']['username'] ?? '';
     }
 
     /// Get the location in the message
     public function Location()
     {
-        return $this->data['message']['location'];
+        return $this->data['message']['location']  ?? '';
     }
 
     /// Get the update_id of the message
     public function UpdateID()
     {
-        return $this->data['update_id'];
+        return $this->data['update_id']  ?? '';
     }
 
     /// Get the number of updates
@@ -2024,33 +2088,33 @@ class Telegram
     {
         $type = $this->getUpdateType();
         if ($type == self::CALLBACK_QUERY) {
-            return $this->data['callback_query']['from']['id'];
+            return $this->data['callback_query']['from']['id']  ?? '';
         }
         if ($type == self::CHANNEL_POST) {
-            return $this->data['channel_post']['from']['id'];
+            return $this->data['channel_post']['from']['id']  ?? '';
         }
         if ($type == self::EDITED_MESSAGE) {
-            return @$this->data['edited_message']['from']['id'];
+            return @$this->data['edited_message']['from']['id']  ?? '';
         }
 
-        return $this->data['message']['from']['id'];
+        return $this->data['message']['from']['id']  ?? '';
     }
 
     /// Get user's id of current forwarded message
     public function FromID()
     {
-        return $this->data['message']['forward_from']['id'];
+        return $this->data['message']['forward_from']['id'] ?? '';
     }
 
     public function FromUsername()
     {
-        return $this->data['message']['forward_from']['username'];
+        return $this->data['message']['forward_from']['username'] ?? '';
     }
 
     /// Get chat's id where current message forwarded from
     public function FromChatID()
     {
-        return $this->data['message']['forward_from_chat']['id'];
+        return $this->data['message']['forward_from_chat']['id'] ?? '';
     }
 
     /// Tell if a message is from a group or user chat
@@ -2075,7 +2139,7 @@ class Telegram
     public function messageFromGroupTitle()
     {
         if ($this->data['message']['chat']['type'] != 'private') {
-            return $this->data['message']['chat']['title'];
+            return $this->data['message']['chat']['title']  ?? '';
         }
 
         return '';
@@ -2083,85 +2147,85 @@ class Telegram
 
     public function phone()
     {
-        return $this->data['message']['contact'];
+        return $this->data['message']['contact']  ?? '';
     }
 
     public function phoneho()
     {
-        return $this->data['message']['contact']['user_id'];
+        return $this->data['message']['contact']['user_id']  ?? '';
     }
 
     public function phonenu()
     {
-        return $this->data['message']['contact']['phone_number'];
+        return $this->data['message']['contact']['phone_number']  ?? '';
     }
 
     public function documentid()
     {
-        return $this->data['message']['document']['file_id'];
+        return $this->data['message']['document']['file_id']  ?? '';
     }
 
     public function stickerid()
     {
-        return $this->data['message']['sticker']['file_id'];
+        return $this->data['message']['sticker']['file_id']  ?? '';
     }
 
     public function gifid()
     {
-        return $this->data['message']['animation']['file_id'];
+        return $this->data['message']['animation']['file_id']  ?? '';
     }
 
     public function audioid()
     {
-        return $this->data['message']['audio']['file_id'];
+        return $this->data['message']['audio']['file_id']  ?? '';
     }
 
     public function voiceid()
     {
-        return $this->data['message']['voice']['file_id'];
+        return $this->data['message']['voice']['file_id']  ?? '';
     }
 
     public function videoid()
     {
-        return $this->data['message']['video']['file_id'];
+        return $this->data['message']['video']['file_id']  ?? '';
     }
 
     public function videonoteid()
     {
-        return $this->data['message']['video_note']['file_id'];
+        return $this->data['message']['video_note']['file_id']  ?? '';
     }
 
     public function photoid()
     {
 
         $data = is_array($this->data['message']['photo']) ? count($this->data['message']['photo']) : 0;
-        return $this->data['message']['photo'][$data - 1]['file_id'];
+        return $this->data['message']['photo'][$data - 1]['file_id'] ?? '';
     }
 
     public function videosize()
     {
-        return $this->data['message']['video']['file_size'];
+        return $this->data['message']['video']['file_size'] ?? '';
     }
 
     public function videonote()
     {
-        return $this->data['message']['video_note']['file_size'];
+        return $this->data['message']['video_note']['file_size'] ?? '';
     }
 
     public function photosize()
     {
         $data = is_array($this->data['message']['photo']) ? count($this->data['message']['photo']) : 0;
-        return $this->data['message']['photo'][$data - 1]['file_size'];
+        return $this->data['message']['photo'][$data - 1]['file_size'] ?? '';
     }
 
     public function gifsize()
     {
-        return $this->data['message']['animation']['file_size'];
+        return $this->data['message']['animation']['file_size'] ?? '';
     }
 
     public function blockuser()
     {
-        return $this->data['my_chat_member']['new_chat_member']['kicked'];
+        return $this->data['my_chat_member']['new_chat_member']['kicked']  ?? '';
     }
     /// Set a custom keyboard
 

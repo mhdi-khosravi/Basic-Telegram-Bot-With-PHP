@@ -1,4 +1,5 @@
 <?php
+
 namespace bot\generalFunctions;
 
 use bot\generalDBFunctions\generalDBFunctions;
@@ -7,7 +8,6 @@ use PDOException;
 require_once __DIR__ . '/Telegram.php';
 require_once __DIR__ . '/generalConfig.php';
 require_once __DIR__ . '/generalDBFunctions.php';
-
 
 
 class generalFunctions
@@ -23,7 +23,7 @@ class generalFunctions
 
     public function addStep(): void
     {
-        $this->generalDBFunctions->insertToDB("step", ["telegram_id", "telegram_username", "step"], [chatId, telegramUserName, "home"]);
+        $this->generalDBFunctions->insertToDB("step", ["telegram_id", "telegram_username", "telegram_full_name", "step"], [chatId, telegramUserName, telegramFullName, "home"]);
     }
 
     public function setStep(string $step, string $chatId = chatId): void
@@ -34,6 +34,11 @@ class generalFunctions
     public function getStep()
     {
         return $this->generalDBFunctions->selectFromDB("step", ["*"], "telegram_id='" . chatId . "'")[0]['step'];
+    }
+
+    public function getIdFromFullName($fullName)
+    {
+        return $this->generalDBFunctions->selectFromDB("step", ["telegram_id"], "telegram_full_name='" . $fullName . "'")[0]['telegram_id'];
     }
 
     public function isAdmin(): bool
@@ -79,6 +84,28 @@ class generalFunctions
         return ['link' => $file['result']['file_path'], 'type' => $fileType];
     }
 
+    public function broadcast($message, $parsMode = NULL, $keyboard = NULL): void
+    {
+        $this->addToReadyAll();
+        $userIds = $this->generalDBFunctions->selectFromDB("ready", ["id"]);
+        $x = 0;
+        $userIdsCount = count($userIds);
+        $this->sendMessage("شروع ارسال به " . $userIdsCount . " نفر", id: ADMIN['mahdi']);
+
+        for ($i = 0; $i < $userIdsCount; $i++) {
+            $userId = $userIds[$i]['id'];
+            $response = $this->sendMessage(text: $message, id: $userId);
+            if (!$response["ok"]) {
+                $x++;
+            }
+            sleep(0.5);
+        }
+        $this->sendMessage("موفق: " . count($userIds) - $x);
+        $this->sendMessage("نا موفق: $x");
+        $this->sendMessage("ارسال همگانی تمام شد", NULL);
+
+    }
+
     public function detectType()
     {
         $type = updateType;
@@ -107,23 +134,24 @@ class generalFunctions
         );
     }
 
-    public function sendMessage(string $text, string $keyboardName = null, string $id = "", array $keyboardInput = [], $replyParameters = null): mixed
+    public function sendMessage(string $text, string $id = "", array $keyboardInput = NULL, $replyParameters = null): mixed
     {
         if ($id == "") {
             $id = chatId;
         }
-        if ($keyboardName === "custom") {
-            $keyboardName = json_encode($keyboardInput);
+        if ($keyboardInput != NULL) {
+            $keyboardInput = json_encode($keyboardInput);
         }
         return $this->bot->sendMessage(
             [
                 'chat_id' => $id,
                 'text' => $text,
-                'reply_markup' => $keyboardName,
+                'reply_markup' => $keyboardInput,
                 'reply_parameters' => $replyParameters
             ]
         );
     }
+
 
     public function sendMedia(string $type, mixed $media, string $caption = mediaCaption, string $id = chatId, $replyMarkup = null): mixed
     {
@@ -209,6 +237,11 @@ class generalFunctions
         }
     }
 
+    public function sendToAdmin($msgId): void
+    {
+        $this->forwardMessage(toChatId: ADMIN['mahdi'], messageId: $msgId);
+    }
+
     public function forwardMessage($toChatId, $messageId = messageId, $fromChatId = chatId)
     {
         return $this->bot->forwardMessage(
@@ -216,6 +249,54 @@ class generalFunctions
                 'chat_id' => $toChatId,
                 'from_chat_id' => $fromChatId,
                 'message_id' => $messageId
+            ]
+        );
+    }
+
+    public function isBlackList($userId): bool
+    {
+        $data = $this->generalDBFunctions->selectFromDB("black_list", ["telegram_id"], "telegram_id='$userId'");
+        if (empty($data)) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    }
+
+    public function addBlackList($userId, $username): void
+    {
+        $this->generalDBFunctions->insertToDB("black_list", ['telegram_id', 'telegram_username'], [$userId, $username]);
+    }
+    public function removeBlackList($userId): void
+    {
+        $this->generalDBFunctions->deleteFromDB("black_list","telegram_id='".$userId."'");
+    }
+    public function createChatInviteLink($channelId, $hour = 3)
+    {
+        $seconds = $hour * 3600;
+        return $this->bot->createChatInviteLink(
+            [
+                'chat_id' => $channelId,
+                'name' => telegramUserName,
+                'expire_date' => time() + $seconds,
+                'member_limit' => 1
+            ])['result']['invite_link'];
+    }
+    public function unbanChatMember($channelId,$userId): void
+    {
+        $this->bot->unbanChatMember(
+            [
+                'chat_id' => $channelId,
+                'user_id' => $userId,
+            ]
+        );
+    }
+    public function kickChatMember($channelId,$userId)
+    {
+        return $this->bot->kickChatMember(
+            [
+                'chat_id' => $channelId,
+                'user_id' => $userId,
             ]
         );
     }
